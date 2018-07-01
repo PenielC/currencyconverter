@@ -20,7 +20,7 @@ self.addEventListener("activate", function (event) {
         caches.keys().then(function (cacheNames) { 
             return Promise.all(cacheNames.map(function (thisCacheName) { 
                 if (thisCacheName !== cacheName) { 
-                    console.log("removing cached files");
+                    console.log("removing cached files from thisCacheName");
                     return caches.delete(thisCacheName);
                 }
             }))
@@ -29,17 +29,17 @@ self.addEventListener("activate", function (event) {
 })
 
 self.addEventListener("fetch", function (event) { 
-    event.respondWith(
+    event.respondWith(async function(){
         caches.match(event.request).then(function (response) { 
             if (response) { 
-                console.log(event.request);
+                console.log(event.request.url);
                 return response;
             }
 
             var requestClone = event.request.clone();
             fetch(requestClone)
             .then(function (response) { 
-                if (response) { 
+                if (!response) { 
                     console.log("No response from fetch");
                     return response;
                 }
@@ -50,12 +50,10 @@ self.addEventListener("fetch", function (event) {
                     return response;
                 });
             })
-                .catch(function (err) { 
+            .catch(function (err) { 
                     console.log("Error fetching and caching")
-                })
+            })
         })
-        //caches.open(cacheName).then(function (cache) {
-          //  return cache.match(event.request);
-        //})
-    )
+      
+    })
 })
