@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Peniel Chingombe">
+    
+    <title>Currency Converter</title>
+    <link rel="canonical" href="">
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    
+    <!-- Custom styles for this template -->
+    <link href="../css/style.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="jumbotron text-center">
+        <h1>Currency Converter</h1>
+        <p>Select and convert currency quick and easy!!</p> 
+      </div>
+        
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+              <div class="form-div col-md-4">
+                <h2>Convert your currency below</h2>
+                <form>
+                <div class="group-control">
+                    <input type="text" id="amount" required class="form-control" placeholder="type in the amount"/>
+                </div>
+                <div class="group-control">
+                    <select class="form-control" id="fromCurrency"></select>
+                </div>
+                <div class="group-control">
+                    <select class="form-control" id="toCurrency"></select>
+                </div>
+                <div class="group-control">
+                    <input type="button" class="btn btn-primary" onclick='convert()' id="btnConvert" value="Convert">
+                </div>
+                <div id="exchangeResult" class="group-control"></div>
+                </form>
+            </div>
+          </div>
+         
+        </div>
+      </div>
+
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+
+    <script>
+          
+        let fromDropdown = document.getElementById('fromCurrency');
+        fromDropdown.length = 0;
+
+        let toDropdown = document.getElementById('toCurrency');
+        toDropdown.length = 0;
+
+        let fromDefaultOption = document.createElement('option');
+        fromDefaultOption.text = 'Convert from';
+
+        let toDefaultOption = document.createElement('option');
+        toDefaultOption.text = 'Convert to';
+
+        fromDropdown.add(fromDefaultOption);
+        fromDropdown.selectedIndex = 0;
+
+        toDropdown.add(toDefaultOption);
+        toDropdown.selectedIndex = 0;
+
+        const url = 'https://free.currencyconverterapi.com/api/v5/countries';
+
+        fetch(url)  
+        .then(  
+            function(response) {  
+            if (response.status !== 200) {  
+                console.warn('Looks like there was a problem. Status Code: ' + 
+                response.status);  
+                return;  
+            }
+
+            // Examine the text in the response  
+            response.json().then(function(data) {  
+                let option;
+                let currencyObj = data['results'];
+                let currencySymbol= "";
+                let currencyName = "";
+                let currencyId ="";
+                
+                //first dropdown
+                for (let key in currencyObj) {
+                    
+                    currencySymbol = currencyObj[key].currencySymbol;
+                    currencyName = currencyObj[key].currencyName;
+                    currencyId = currencyObj[key].currencyId;
+                    
+                    option = document.createElement('option');
+                    option.text = currencySymbol != undefined ? currencySymbol + " " + currencyId : currencyId;
+                    option.value = currencyId;
+                    fromDropdown.add(option);
+                
+                }    
+
+
+                //Second dropdown
+                for (let key in currencyObj) {
+                    
+                    currencySymbol = currencyObj[key].currencySymbol;
+                    currencyName = currencyObj[key].currencyName;
+                    currencyId = currencyObj[key].currencyId;
+                    
+                    option = document.createElement('option');
+                    option.text = currencySymbol != undefined ? currencySymbol + " " + currencyId : currencyId;
+                    option.value = currencyId;
+                
+                    toDropdown.add(option);
+
+                }    
+
+            });  
+            }  
+        )  
+        .catch(function(err) {  
+            console.error('Fetch Error -', err);  
+        });
+
+
+        function convert(){
+
+            const amount = document.getElementById('amount').value;
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            console.log("from", fromCurrency, "to", toCurrency);
+            const url = `https://free.currencyconverterapi.com/api/v5/convert?q=${fromCurrency}_${toCurrency}`;
+
+            fetch(url)
+            .then(function (response){
+                response.json().then(function(data) {  
+                    console.log(data['results']);
+                    let results = data['results'];
+
+                    for(let exch in results)
+                    {
+                        console.log("exch", results[exch].val);
+                        const exchangedAmount = amount * results[exch].val;
+                        var node = document.createElement("SPAN");                 
+                        var textnode = document.createTextNode(exchangedAmount);        
+                        node.appendChild(textnode);                             
+                        document.getElementById("exchangeResult").appendChild(node);  
+                    }
+                })
+                
+
+                
+            })
+        }
+
+
+    //Register my service worker
+    if("serviceWorker" in navigator){
+        navigator.serviceWorker.register("/sw.js").then(function(registration){
+            console.log("Succesfully Registered");
+        }).catch(function(error){
+            console.log("error :", error);
+        })
+    }
+
+
+    </script>
+  
+  </body>
+</html>

@@ -1,0 +1,18 @@
+.form-div{
+    margin-left:auto;
+    margin-right:auto;
+    background: #e9ecef;
+    border-radius:5px;
+}
+.group-control{
+    padding: 1%;
+}
+#exchangeResult span{
+    color:#28a745;
+    font-size: 3em;
+}
+h2{
+    font-size: 1.2rem;
+    padding-top:6%;
+    padding-bottom:4%;
+}
